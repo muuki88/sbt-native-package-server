@@ -1,0 +1,126 @@
+<body>
+<div>
+    <h2>Build native server packages</h2>
+
+    <p>
+        sbt-native-packager is a plugin to build distributions and native packages like zip, tar, debian, rpm, msi or dmg.
+        It provides a set of "archetypes", which provide settings for different use cases.
+    </p>
+
+    <p>This tutorial provides a basic introduction the <strong>java_server</strong>, which let's you
+       build native debian/rpm packages with autostart scripts and default folders.
+    </p>
+    <ul>
+        <li>What's a server application?</li>
+        <li>Example application</li>
+        <li>Build.sbt</li>
+        <li>Installing on debian systems with Upstart</li>
+        <li>Configuration</li>
+    </ul>
+</div>
+<div>
+    <h2>What's a server application?</h2>
+
+    <p>
+        The server type is defined by the following settings:
+    </p>
+    <ul>
+        <li>A set of <a href="http://www.scala-sbt.org/sbt-native-packager/GettingStartedServers/MyFirstProject.html#default-mappings">
+            default folders<a/> like <em>/var/log/[packagename]</em> with best-practices access rights.
+        </li>
+        <li>Autostart scripts which use native service / startup systems like Upstart or SystemV</li>
+    </ul>
+
+    <h2>Example application</h2>
+
+    <p>
+        The server in this tutorial only logs a message in configurable rate to a log file.
+        We use <a href="http://logging.apache.org/log4j/2.x/">log4j2</a> as a logging system and the <a href="https://github.com/typesafehub/config">
+        Typesafe Config Library</a> to configure our server.
+    </p>
+
+    <h2>Build.sbt</h2>
+    
+    <pre><code>
+// what class starts the server
+mainClass in Compile := Some("core.Server")
+
+// include the server settings
+packageArchetype.java_server
+
+// global package settings
+packageDescription := "Custom application configuration"
+
+// Linux packaging settings
+maintainer in Linux := "Nepomuk Seiler <nepomuk.seiler@mukis.de>"
+
+packageSummary in Linux := "Logging Server Application"
+
+// Map the default config files to the universal mappings
+mappings in Universal <++= sourceDirectory  map { src =>
+    val resources = src / "main" / "resources"
+    val log4j = resources / "log4j2.xml"
+    val reference = resources / "reference.conf"
+    Seq(log4j -> "conf/log4j2.xml", reference -> "conf/application.conf")
+}
+    </code></pre>
+    
+    <p>
+    The last setting needs some explanation. <em>Mappings</em> define a tuple <em>sourcefile -> targetfile</em>.
+    In this case we are adding the <em>log4j2.xml</em> configuration file to <strong>all</strong> packaging outputs
+    to the <em>conf/log4j2.xml</em> folder, following the <a href="http://www.scala-sbt.org/sbt-native-packager/DetailedTopics/universal.html#universal-conventions">
+    universal mapping conventions</a>. The file will be available relative to the installation location.
+    </p>
+    
+    <p>
+    The same is done with the <em>reference.conf</em> with the exception that we rename the file to fit the
+    Config Library conventions.
+    </p>
+    
+    <h2>Installing on debian systems with Upstart</h2>
+    
+    Let's build and install our server. For debian systems <em>upstart</em> is used by default for starting your application.
+    
+    
+    <pre><code>
+sbt debian:packageBin
+sudo dpkg -i target/sbt-native-package-server-1.0.deb
+    </code></pre>
+
+    <p>
+    You will notice a few things during the installation.
+    </p>
+    <ul>
+        <li>A group and a user <em>sbt-native-package-server</em> will be created</li>
+        <li>A service <em>sbt-native-package-server</em> will be started</li>
+    </ul>
+    
+    <p>
+    Try to use the standard service commands to control your application   
+    </p>
+    
+    <ul>
+        <li><code>sudo service sbt-native-package-server stop</code></li>
+        <li><code>sudo service sbt-native-package-server start</code></li>
+        <li><code>sudo service sbt-native-package-server restart</code></li>
+        <li><code>sudo service sbt-native-package-server status</code></li>
+    </ul>
+
+    <h2>Configuration</h2>
+    
+    <p>
+    Let's take a closer look at our configuration. In the project directory in <em>src/templates/etc-default</em>
+    is the application startscript configuration stored. After installing the package you can find the file under
+    <em>/etc/default/sbt-native-package-server</em>. The start script contains two system properties, which point
+    to the configuration files for log4j and the config library.
+    </p>
+    
+    <p>
+    Open one of the configuration files as sudo and make a change. For example change the <em>hearbeat.msg</em>
+    value. Then restart the application with <code>sudo service sbt-native-package-server restart</code>, while
+    watching the logging output with <code>tail -f /var/log/sbt-native-package-server/app.log</code>.
+    </p>
+</div>
+
+
+</body>

@@ -20,8 +20,8 @@ packageArchetype.java_server
 // global package settings
 packageDescription := "Custom application configuration"
 
-// Linux packaging settings
-maintainer in Linux := "Nepomuk Seiler <nepomuk.seiler@mukis.de>"
+// Maintainer for all packages
+maintainer := "Nepomuk Seiler <nepomuk.seiler@mukis.de>"
 
 packageSummary in Linux := "Logging Server Application"
 

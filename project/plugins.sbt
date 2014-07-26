@@ -4,4 +4,4 @@ logLevel := Level.Warn
 // The Typesafe repository
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.7.2-RC1")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.7.3")

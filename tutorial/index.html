@@ -51,8 +51,8 @@ packageArchetype.java_server
 // global package settings
 packageDescription := "Custom application configuration"
 
-// Linux packaging settings
-maintainer in Linux := "Nepomuk Seiler <nepomuk.seiler@mukis.de>"
+// Maintainer for all packages
+maintainer := "Nepomuk Seiler <nepomuk.seiler@mukis.de>"
 
 packageSummary in Linux := "Logging Server Application"
 
@@ -120,6 +120,15 @@ sudo dpkg -i target/sbt-native-package-server-1.0.deb
     value. Then restart the application with <code>sudo service sbt-native-package-server restart</code>, while
     watching the logging output with <code>tail -f /var/log/sbt-native-package-server/app.log</code>.
     </p>
+</div>
+
+<div>
+    <h2>Running with Docker</h2>
+    
+    <pre><code>
+sbt docker:publishLocal
+docker run sbt-native-package-server:1.0
+    </code></pre>
 </div>
 
 
